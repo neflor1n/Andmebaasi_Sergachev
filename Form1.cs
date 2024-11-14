@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,8 +14,11 @@ namespace Andmebaasi_Sergachev
 {
     public partial class Form1 : Form
     {
-        SqlConnection conn = new SqlConnection (@"Data Source=(localdb)\MSSQLLocalDB;
-            Initial Catalog=Andmebaas2");
+        //SqlConnection conn = new SqlConnection (@"Data Source=(localdb)\MSSQLLocalDB;
+        //    Initial Catalog=Andmebaas2");
+        SqlConnection conn = new SqlConnection (@"Data Source=
+            (LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\opilane\source\repos\Andmebaasi_Sergachev\Andmebaass.mdf;
+            Integrated Security=True");
         SqlCommand cmd;
         SqlDataAdapter adapter;
         public Form1()
@@ -24,6 +28,7 @@ namespace Andmebaasi_Sergachev
             this.button2.Click += new System.EventHandler(this.lisa_vtb_click);
             this.button3.Click += new System.EventHandler(this.kustuta_btn_click);
             this.button4.Click += new System.EventHandler(this.uuenda_btn_click);
+            this.button5.Click += new System.EventHandler(this.otsipilt_btn_Click);
         }
 
 
@@ -47,10 +52,11 @@ namespace Andmebaasi_Sergachev
                 try
                 {
                     conn.Open();
-                    cmd = new SqlCommand("INSERT INTO Toode(Nimetus, Hind, Kogus) VALUES (@nimetus, @hind, @kogus)", conn);
+                    cmd = new SqlCommand("INSERT INTO Toode(Nimetus, Hind, Kogus, Pilt) VALUES (@nimetus, @hind, @kogus, @pilt)", conn);
                     cmd.Parameters.AddWithValue("@nimetus", NimetusBx.Text);
                     cmd.Parameters.AddWithValue("@hind", HindBx.Text);  // Значение для поля Hind
                     cmd.Parameters.AddWithValue("@kogus", KogusBx.Text); // Значение для поля Kogus
+                    cmd.Parameters.AddWithValue("@pilt", NimetusBx.Text + extension);
 
                     cmd.ExecuteNonQuery();
 
@@ -111,40 +117,161 @@ namespace Andmebaasi_Sergachev
 
         public void uuenda_btn_click(object sender, EventArgs e)
         {
-            if (dataGridView2.SelectedRows.Count > 0) 
+            if (comboBox1.SelectedItem != null)
             {
-                if (HindBx.Text.Trim() != string.Empty)  
+                string selectedOption = comboBox1.SelectedItem.ToString().Trim(); 
+
+                // Обработка "Uuenda toode hind"
+                if (selectedOption == "Uuenda toode hind")
                 {
-                    try
+                    if (dataGridView2.SelectedRows.Count > 0)
                     {
-                        int selectedID = Convert.ToInt32(dataGridView2.SelectedRows[0].Cells["ID"].Value);
+                        if (HindBx.Text.Trim() != string.Empty)
+                        {
+                            try
+                            {
+                                int selectedID = Convert.ToInt32(dataGridView2.SelectedRows[0].Cells["ID"].Value);
+                                conn.Open();
 
-                        conn.Open();
+                                cmd = new SqlCommand("UPDATE Toode SET Hind = @hind WHERE ID = @id", conn);
+                                cmd.Parameters.AddWithValue("@hind", Convert.ToDecimal(HindBx.Text));  // Делаем текстовое поле в decimal
+                                cmd.Parameters.AddWithValue("@id", selectedID);  // ID записи
 
-                        cmd = new SqlCommand("UPDATE Toode SET Hind = @hind WHERE ID = @id", conn);
-                        cmd.Parameters.AddWithValue("@hind", Convert.ToDecimal(HindBx.Text));  // Преобразуем текстовое поле в decimal
-                        cmd.Parameters.AddWithValue("@id", selectedID);  // Указываем ID записи, которую нужно обновить
+                                cmd.ExecuteNonQuery();
+                                conn.Close();
 
-                        cmd.ExecuteNonQuery();
-                        conn.Close();
+                                NaitaAndmed();
 
-                        NaitaAndmed();
-
-                        MessageBox.Show("Kirje värskendamine õnnestus!");
+                                MessageBox.Show("Kirje värskendamine õnnestus!");
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show("Viga andmete värskendamisel: " + ex.Message);
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("Sisestage värskendamiseks väärtus!");
+                        }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        MessageBox.Show("Viga andmete värskendamisel: " + ex.Message);
+                        MessageBox.Show("Valige värskendamiseks kirje.");
+                    }
+                }
+                // Обработка "Uuenda toode nimetus"
+                else if (selectedOption == "Uuenda toode nimetus")
+                {
+                    if (dataGridView2.SelectedRows.Count > 0)
+                    {
+                        if (NimetusBx.Text.Trim() != string.Empty)
+                        {
+                            try
+                            {
+                                int selectedID = Convert.ToInt32(dataGridView2.SelectedRows[0].Cells["ID"].Value);
+                                conn.Open();
+
+                                cmd = new SqlCommand("UPDATE Toode SET Nimetus = @nimetus WHERE ID = @id", conn);
+                                cmd.Parameters.AddWithValue("@nimetus", NimetusBx.Text);  
+                                cmd.Parameters.AddWithValue("@id", selectedID);
+                                cmd.ExecuteNonQuery();
+                                conn.Close();
+                                NaitaAndmed();
+
+                                MessageBox.Show("Kirje värskendamine õnnestus!");
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show("Viga andmete värskendamisel: " + ex.Message);
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("Sisestage värskendamiseks väärtus!");
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Valige värskendamiseks kirje.");
+                    }
+                }
+                // Обработка "Uuenda toode kogus"
+                else if (selectedOption == "Uuenda toode kogus")
+                {
+                    if (dataGridView2.SelectedRows.Count > 0)
+                    {
+                        if (KogusBx.Text.Trim() != string.Empty)
+                        {
+                            try
+                            {
+                                int selectedID = Convert.ToInt32(dataGridView2.SelectedRows[0].Cells["ID"].Value);
+                                conn.Open();
+
+                                cmd = new SqlCommand("UPDATE Toode SET Kogus = @kogus WHERE ID = @id", conn);
+                                cmd.Parameters.AddWithValue("@kogus", Convert.ToInt32(KogusBx.Text));  
+                                cmd.Parameters.AddWithValue("@id", selectedID);
+                                cmd.ExecuteNonQuery();
+                                conn.Close();
+                                NaitaAndmed();
+
+                                MessageBox.Show("Kirje värskendamine õnnestus!");
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show("Viga andmete värskendamisel: " + ex.Message);
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("Sisestage värskendamiseks väärtus!");
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Valige värskendamiseks kirje.");
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Sisestage värskendamiseks väärtus!");
+                    MessageBox.Show("Выберите что хотите изменить!");
                 }
             }
             else
             {
-                MessageBox.Show("Valige värskendamiseks kirje.");
+                MessageBox.Show("Valige operatsioon!");
+            }
+        }
+
+
+
+        OpenFileDialog open;
+        SaveFileDialog save;
+        string extension;
+        public void otsipilt_btn_Click(object sender, EventArgs e)
+        {
+            open = new OpenFileDialog();
+            open.InitialDirectory = @"C:\Users\opilane\Pictures\";
+            open.Multiselect = false;
+            open.Filter = "Images Files(*.jpeg; *.png; *.jpg; *.bmp) |*.jpeg; *.png; *.jpg; *.bmp";
+            FileInfo openfile = new FileInfo(@"C:\Users\opilane\Pictures\" + open.FileName);
+            if (open.ShowDialog() == DialogResult.OK && NimetusBx.Text != null)
+            {
+                save = new SaveFileDialog();
+                save.InitialDirectory = Path.GetFullPath(@"..\..\..\img");
+                extension = Path.GetExtension(open.FileName);
+                save.FileName = NimetusBx.Text + extension;
+                save.Filter = "Images" + Path.GetExtension(open.FileName) + "|" + Path.GetExtension(open.FileName);
+                if (save.ShowDialog() == DialogResult.OK && NimetusBx.Text != null) 
+                {
+                    File.Copy(open.FileName, save.FileName);
+                    pictureBox1.Image = Image.FromFile(save.FileName);
+                    pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+
+                }
+            }
+            else
+            {
+                MessageBox.Show("Puudub toode nimetus või ole Cancel vajutatud");
             }
         }
 
@@ -153,6 +280,8 @@ namespace Andmebaasi_Sergachev
 
 
 
+
+       
 
 
 
@@ -170,13 +299,9 @@ namespace Andmebaasi_Sergachev
         private void Form1_Load_1(object sender, EventArgs e)
         {
             // TODO: This line of code loads data into the 'andmebaas2DataSet1.Toode' table. You can move, or remove it, as needed.
-            this.toodeTableAdapter1.Fill(this.andmebaas2DataSet1.Toode);
 
         }
 
-        private void label4_Click(object sender, EventArgs e)
-        {
-
-        }
+        
     }
 }

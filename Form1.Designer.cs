@@ -42,9 +42,13 @@
             this.Hind = new System.Windows.Forms.Label();
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.button5 = new System.Windows.Forms.Button();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.andmebaas2DataSet1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // dataGridView2
@@ -67,7 +71,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(63, 188);
+            this.button2.Location = new System.Drawing.Point(562, 25);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(134, 38);
             this.button2.TabIndex = 1;
@@ -108,7 +112,6 @@
             this.Nimetus.Size = new System.Drawing.Size(93, 26);
             this.Nimetus.TabIndex = 5;
             this.Nimetus.Text = "Nimetus";
-            this.Nimetus.Click += new System.EventHandler(this.label4_Click);
             // 
             // Kogus
             // 
@@ -132,7 +135,7 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(63, 236);
+            this.button3.Location = new System.Drawing.Point(562, 69);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(134, 38);
             this.button3.TabIndex = 8;
@@ -141,16 +144,48 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(218, 188);
+            this.button4.Location = new System.Drawing.Point(562, 157);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(134, 38);
             this.button4.TabIndex = 9;
-            this.button4.Text = "Uuenda toode hind";
+            this.button4.Text = "Uuenda toode andmed";
             this.button4.UseVisualStyleBackColor = true;
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Items.AddRange(new object[] {
+            "Uuenda toode hind",
+            "Uuenda toode nimetus",
+            "Uuend toode kogus"});
+            this.comboBox1.Location = new System.Drawing.Point(562, 201);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(121, 21);
+            this.comboBox1.TabIndex = 10;
+            // 
+            // button5
+            // 
+            this.button5.Location = new System.Drawing.Point(562, 113);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(134, 38);
+            this.button5.TabIndex = 11;
+            this.button5.Text = "Pildi otsing";
+            this.button5.UseVisualStyleBackColor = true;
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Location = new System.Drawing.Point(361, 25);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(195, 141);
+            this.pictureBox1.TabIndex = 12;
+            this.pictureBox1.TabStop = false;
             // 
             // Form1
             // 
             this.ClientSize = new System.Drawing.Size(844, 480);
+            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.button5);
+            this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.Hind);
@@ -166,6 +201,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.andmebaas2DataSet1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -201,6 +237,9 @@
         private System.Windows.Forms.Label Hind;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }
 

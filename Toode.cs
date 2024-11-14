@@ -13,7 +13,7 @@ namespace Andmebaasi_Sergachev
         public float Hind { get; set; }
         public int Kogus { get; set; }
         
-
+        public string pilt { get; set; }
 
     }
 }
