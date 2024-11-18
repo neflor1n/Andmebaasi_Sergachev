@@ -157,7 +157,8 @@
             this.comboBox1.Items.AddRange(new object[] {
             "Uuenda toode hind",
             "Uuenda toode nimetus",
-            "Uuend toode kogus"});
+            "Uuenda toode kogus",
+            "Uuenda toode pilt"});
             this.comboBox1.Location = new System.Drawing.Point(562, 201);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(121, 21);
@@ -197,7 +198,6 @@
             this.Controls.Add(this.button2);
             this.Controls.Add(this.dataGridView2);
             this.Name = "Form1";
-            this.Load += new System.EventHandler(this.Form1_Load_1);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.andmebaas2DataSet1)).EndInit();

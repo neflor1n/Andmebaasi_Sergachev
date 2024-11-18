@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -29,6 +30,8 @@ namespace Andmebaasi_Sergachev
             this.button3.Click += new System.EventHandler(this.kustuta_btn_click);
             this.button4.Click += new System.EventHandler(this.uuenda_btn_click);
             this.button5.Click += new System.EventHandler(this.otsipilt_btn_Click);
+
+            this.dataGridView2.SelectionChanged += new System.EventHandler(this.dataGridView2_SelectionChanged);
         }
 
 
@@ -81,31 +84,72 @@ namespace Andmebaasi_Sergachev
 
         public void kustuta_btn_click(object sender, EventArgs e)
         {
-            // Проверяем, выбрана ли строка в DataGridView -- Kontrollimine, kas DataGridView-s on rida valitud
+            // Проверяем, выбрана ли строка в DataGridView
             if (dataGridView2.SelectedRows.Count > 0)
             {
                 try
                 {
-                    // Получаем ID выбранной строки - Hankige valitud rea ID
+                    // Получаем ID выбранной строки
                     int selectedID = Convert.ToInt32(dataGridView2.SelectedRows[0].Cells["ID"].Value);
+                    string imagePath = dataGridView2.SelectedRows[0].Cells["pilt"].Value.ToString();
+                    string imageFilePath = Path.Combine(Path.GetFullPath(@"..\..\img"), imagePath);
 
-                    conn.Open();
+                    // Очищаем PictureBox, если изображение используется
+                    if (pictureBox1.Image != null)
+                    {
+                        // Очищаем PictureBox и освобождаем ресурсы изображения
+                        pictureBox1.Image.Dispose();
+                        pictureBox1.Image = null;
+                    }
 
-                    
-                    cmd = new SqlCommand("DELETE FROM Toode WHERE ID = @id", conn);
-                    cmd.Parameters.AddWithValue("@id", selectedID);
+                    // Удаление записи из базы данных
+                    try
+                    {
+                        conn.Open();
+                        cmd = new SqlCommand("DELETE FROM Toode WHERE ID = @id", conn);
+                        cmd.Parameters.AddWithValue("@id", selectedID);
+                        cmd.ExecuteNonQuery();
+                        conn.Close();
 
-                    cmd.ExecuteNonQuery();
+                        // Обновляем данные в DataGridView
+                        NaitaAndmed();
+                        eemaldamine();
+                        // Попробуем удалить файл изображения
+                        if (File.Exists(imageFilePath))
+                        {
+                            try
+                            {
+                                // Пробуем закрыть все потоки, если изображение использует какие-то потоки
+                                using (FileStream fs = new FileStream(imageFilePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+                                {
+                                    // Закрываем поток, чтобы избежать блокировки файла
+                                }
 
-                    conn.Close();
+                                // Добавляем небольшую задержку перед удалением файла
+                                System.Threading.Thread.Sleep(200); // Задержка в 200 миллисекунд
 
-                    NaitaAndmed();
-
-                    MessageBox.Show("Kirje kustutamine õnnestus!");
+                                // Теперь можно безопасно удалить файл изображения
+                                File.Delete(imageFilePath);
+                                MessageBox.Show("Pilt edukalt kustutatud.");
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show("Viga pildi kustutamisel: " + ex.Message);
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("Pilt ei ole leitud: " + imageFilePath);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Viga kirje kustutamisel andmebaasis: " + ex.Message);
+                    }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    MessageBox.Show("Viga kirje kustutamisel: ");
+                    MessageBox.Show("Viga kogu protsessis: " + ex.Message);
                 }
             }
             else
@@ -115,11 +159,23 @@ namespace Andmebaasi_Sergachev
         }
 
 
+
+
+
+        private void eemaldamine()
+        {
+            NimetusBx.Text = "";
+            KogusBx.Text = "";
+            HindBx.Text = "";
+            pictureBox1.Image = Image.FromFile(Path.Combine(Path.GetFullPath(@"..\..\img"), "pilt.jpg"));
+        }
+
+
         public void uuenda_btn_click(object sender, EventArgs e)
         {
             if (comboBox1.SelectedItem != null)
             {
-                string selectedOption = comboBox1.SelectedItem.ToString().Trim(); 
+                string selectedOption = comboBox1.SelectedItem.ToString().Trim();
 
                 // Обработка "Uuenda toode hind"
                 if (selectedOption == "Uuenda toode hind")
@@ -172,7 +228,7 @@ namespace Andmebaasi_Sergachev
                                 conn.Open();
 
                                 cmd = new SqlCommand("UPDATE Toode SET Nimetus = @nimetus WHERE ID = @id", conn);
-                                cmd.Parameters.AddWithValue("@nimetus", NimetusBx.Text);  
+                                cmd.Parameters.AddWithValue("@nimetus", NimetusBx.Text);
                                 cmd.Parameters.AddWithValue("@id", selectedID);
                                 cmd.ExecuteNonQuery();
                                 conn.Close();
@@ -208,7 +264,7 @@ namespace Andmebaasi_Sergachev
                                 conn.Open();
 
                                 cmd = new SqlCommand("UPDATE Toode SET Kogus = @kogus WHERE ID = @id", conn);
-                                cmd.Parameters.AddWithValue("@kogus", Convert.ToInt32(KogusBx.Text));  
+                                cmd.Parameters.AddWithValue("@kogus", Convert.ToInt32(KogusBx.Text));
                                 cmd.Parameters.AddWithValue("@id", selectedID);
                                 cmd.ExecuteNonQuery();
                                 conn.Close();
@@ -231,10 +287,63 @@ namespace Andmebaasi_Sergachev
                         MessageBox.Show("Valige värskendamiseks kirje.");
                     }
                 }
-                else
+                else if (selectedOption == "Uuenda toode pilt")
                 {
-                    MessageBox.Show("Выберите что хотите изменить!");
+                    if (dataGridView2.SelectedRows.Count > 0)
+                    {
+                        // Проверка, выбрано ли изображение в PictureBox
+                        if (pictureBox1.Image != null)
+                        {
+                            // Открыть диалог выбора файла изображения
+                            OpenFileDialog openFileDialog = new OpenFileDialog();
+                            openFileDialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp";
+                            openFileDialog.Title = "Valige uus pilt";
+
+                            if (openFileDialog.ShowDialog() == DialogResult.OK)
+                            {
+                                // Получить выбранный файл
+                                string newImagePath = openFileDialog.FileName;
+
+                                // Получить ID выбранной строки
+                                int selectedID = Convert.ToInt32(dataGridView2.SelectedRows[0].Cells["ID"].Value);
+
+                                // Путь для сохранения изображения
+                                string savePath = Path.Combine(Path.GetFullPath(@"..\..\img"), selectedID + Path.GetExtension(newImagePath));
+
+                                try
+                                {
+                                    // Копировать новое изображение в папку
+                                    File.Copy(newImagePath, savePath, true);  // Флаг "true" перезаписывает файл, если он уже существует
+
+                                    // Обновить путь к изображению в базе данных
+                                    conn.Open();
+                                    cmd = new SqlCommand("UPDATE Toode SET pilt = @pilt WHERE ID = @id", conn);
+                                    cmd.Parameters.AddWithValue("@pilt", selectedID + Path.GetExtension(newImagePath));  // Сохраняем только имя файла
+                                    cmd.Parameters.AddWithValue("@id", selectedID);
+                                    cmd.ExecuteNonQuery();
+                                    conn.Close();
+
+                                    // Обновить отображение изображения
+                                    pictureBox1.Image = Image.FromFile(savePath);
+                                    pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+
+                                    MessageBox.Show("Pilt uuendatud edukalt!");
+                                    NaitaAndmed();  // Обновить данные в DataGridView
+                                }
+                                catch (Exception ex)
+                                {
+                                    MessageBox.Show("Viga pildi uuendamisel: " + ex.Message);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("Valige pilt!");
+                        }
+                    }
+                  
                 }
+
             }
             else
             {
@@ -257,7 +366,7 @@ namespace Andmebaasi_Sergachev
             if (open.ShowDialog() == DialogResult.OK && NimetusBx.Text != null)
             {
                 save = new SaveFileDialog();
-                save.InitialDirectory = Path.GetFullPath(@"..\..\..\img");
+                save.InitialDirectory = Path.GetFullPath(@"..\..\img");
                 extension = Path.GetExtension(open.FileName);
                 save.FileName = NimetusBx.Text + extension;
                 save.Filter = "Images" + Path.GetExtension(open.FileName) + "|" + Path.GetExtension(open.FileName);
@@ -277,20 +386,43 @@ namespace Andmebaasi_Sergachev
 
 
 
+        int ID = 0;
+        private void dataGridView2_SelectionChanged(object sender, EventArgs e)
+        {
+            if (dataGridView2.SelectedRows.Count > 0)
+            {
+                // Получаем ID выбранной строки
+                int selectedID = Convert.ToInt32(dataGridView2.SelectedRows[0].Cells["ID"].Value);
 
+                // Заполняем текстовые поля значениями из базы данных
+                NimetusBx.Text = dataGridView2.SelectedRows[0].Cells["Nimetus"].Value.ToString();
+                KogusBx.Text = dataGridView2.SelectedRows[0].Cells["Kogus"].Value.ToString();
+                HindBx.Text = dataGridView2.SelectedRows[0].Cells["Hind"].Value.ToString();
 
+                try
+                {
+                    // Попытка загрузить картинку
+                    string imagePath = Path.Combine(Path.GetFullPath(@"..\..\img"), dataGridView2.SelectedRows[0].Cells["pilt"].Value.ToString());
 
-
-       
-
-
-
-
-
-
-
-
-
+                    // Проверка, существует ли файл
+                    if (File.Exists(imagePath))
+                    {
+                        pictureBox1.Image = Image.FromFile(imagePath);
+                        pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+                    }
+                    else
+                    {
+                        // Если картинка не найдена, выводим дефолтное изображение
+                        pictureBox1.Image = Image.FromFile(Path.Combine(Path.GetFullPath(@"..\..\img"), "pilt.jpg"));
+                    }
+                }
+                catch (Exception)
+                {
+                    // В случае ошибки показываем дефолтное изображение
+                    pictureBox1.Image = Image.FromFile(Path.Combine(Path.GetFullPath(@"..\..\img"), "pilt.jpg"));
+                }
+            }
+        }
 
 
 
