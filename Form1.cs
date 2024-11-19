@@ -50,15 +50,16 @@ namespace Andmebaasi_Sergachev
 
         public void lisa_vtb_click(object sender, EventArgs e)
         {
-            if (NimetusBx.Text.Trim() != string.Empty && HindBx.Text.Trim() != string.Empty && KogusBx.Text.Trim() != string.Empty)
+            if (NimetusBx.Text.Trim() != string.Empty && HindBx.Text.Trim() != string.Empty && KogusBx.Text.Trim() != string.Empty && kategooriaBx.Text.Trim() != string.Empty)
             {
                 try
                 {
                     conn.Open();
-                    cmd = new SqlCommand("INSERT INTO Toode(Nimetus, Hind, Kogus, Pilt) VALUES (@nimetus, @hind, @kogus, @pilt)", conn);
+                    cmd = new SqlCommand("INSERT INTO Toode(Nimetus, Hind, Kogus, Kategooria, pilt) VALUES (@nimetus, @hind, @kogus, @kategooria,@pilt)", conn);
                     cmd.Parameters.AddWithValue("@nimetus", NimetusBx.Text);
                     cmd.Parameters.AddWithValue("@hind", HindBx.Text);  // Значение для поля Hind
                     cmd.Parameters.AddWithValue("@kogus", KogusBx.Text); // Значение для поля Kogus
+                    cmd.Parameters.AddWithValue("@kategooria", kategooriaBx.Text);
                     cmd.Parameters.AddWithValue("@pilt", NimetusBx.Text + extension);
 
                     cmd.ExecuteNonQuery();
@@ -80,6 +81,26 @@ namespace Andmebaasi_Sergachev
             }
         }
 
+        private void kustutaFile(string file)
+        {
+            try
+            {
+                string filePath = Path.Combine(Path.GetFullPath(@"..\..\img"), file + extension);
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+
+                }
+                else
+                {
+                    MessageBox.Show("Fail ei leidnud");
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Failiga probleemid");
+            }
+        }
 
 
         public void kustuta_btn_click(object sender, EventArgs e)
@@ -91,16 +112,10 @@ namespace Andmebaasi_Sergachev
                 {
                     // Получаем ID выбранной строки
                     int selectedID = Convert.ToInt32(dataGridView2.SelectedRows[0].Cells["ID"].Value);
-                    string imagePath = dataGridView2.SelectedRows[0].Cells["pilt"].Value.ToString();
-                    string imageFilePath = Path.Combine(Path.GetFullPath(@"..\..\img"), imagePath);
+                    string file = NimetusBx.Text;
+                    kustutaFile(file);
 
-                    // Очищаем PictureBox, если изображение используется
-                    if (pictureBox1.Image != null)
-                    {
-                        // Очищаем PictureBox и освобождаем ресурсы изображения
-                        pictureBox1.Image.Dispose();
-                        pictureBox1.Image = null;
-                    }
+                    
 
                     // Удаление записи из базы данных
                     try
@@ -114,33 +129,7 @@ namespace Andmebaasi_Sergachev
                         // Обновляем данные в DataGridView
                         NaitaAndmed();
                         eemaldamine();
-                        // Попробуем удалить файл изображения
-                        if (File.Exists(imageFilePath))
-                        {
-                            try
-                            {
-                                // Пробуем закрыть все потоки, если изображение использует какие-то потоки
-                                using (FileStream fs = new FileStream(imageFilePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
-                                {
-                                    // Закрываем поток, чтобы избежать блокировки файла
-                                }
-
-                                // Добавляем небольшую задержку перед удалением файла
-                                System.Threading.Thread.Sleep(200); // Задержка в 200 миллисекунд
-
-                                // Теперь можно безопасно удалить файл изображения
-                                File.Delete(imageFilePath);
-                                MessageBox.Show("Pilt edukalt kustutatud.");
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show("Viga pildi kustutamisel: " + ex.Message);
-                            }
-                        }
-                        else
-                        {
-                            MessageBox.Show("Pilt ei ole leitud: " + imageFilePath);
-                        }
+                        
                     }
                     catch (Exception ex)
                     {
@@ -336,22 +325,71 @@ namespace Andmebaasi_Sergachev
                                 }
                             }
                         }
+
                         else
                         {
                             MessageBox.Show("Valige pilt!");
                         }
                     }
-                  
+
+                }
+                // Обработка "Uuenda toode kategooria"
+                else if (selectedOption == "Uuenda toode kategooria")
+                {
+                    if (dataGridView2.SelectedRows.Count > 0)
+                    {
+                        // Проверка, что категория выбрана
+                        if (kategooriaBx.SelectedIndex != -1)  
+                        {
+                            try
+                            {
+                                int selectedID = Convert.ToInt32(dataGridView2.SelectedRows[0].Cells["ID"].Value);
+                                int selectedCategoryID = Convert.ToInt32(kategooriaBx.SelectedValue); // Получаем ID выбранной категории
+
+                                // Для отладки
+                                MessageBox.Show("Selected Category ID: " + selectedCategoryID);
+
+                                if (selectedCategoryID == 0)
+                                {
+                                    MessageBox.Show("Kehtiv kategooria ei ole valitud!");
+                                    return;
+                                }
+
+                                conn.Open();
+                                cmd = new SqlCommand("UPDATE Toode SET Kategooria = @kategooria WHERE ID = @id", conn);
+                                cmd.Parameters.AddWithValue("@kategooria", selectedCategoryID);  
+                                cmd.Parameters.AddWithValue("@id", selectedID);  
+                                cmd.ExecuteNonQuery();
+                                conn.Close();
+
+                                NaitaAndmed();  
+
+                                MessageBox.Show("Kategooria edukalt uuendatud!");
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show("Viga kategooria värskendamisel: " + ex.Message);
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("Valige kehtiv kategooria.");
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Valige värskendamiseks kirje.");
+                    }
                 }
 
-            }
-            else
-            {
+
+                else
+                {
                 MessageBox.Show("Valige operatsioon!");
             }
+            }
         }
-
-
+      
 
         OpenFileDialog open;
         SaveFileDialog save;
@@ -398,6 +436,7 @@ namespace Andmebaasi_Sergachev
                 NimetusBx.Text = dataGridView2.SelectedRows[0].Cells["Nimetus"].Value.ToString();
                 KogusBx.Text = dataGridView2.SelectedRows[0].Cells["Kogus"].Value.ToString();
                 HindBx.Text = dataGridView2.SelectedRows[0].Cells["Hind"].Value.ToString();
+                kategooriaBx.Text = dataGridView2.SelectedRows[0].Cells["Kategooria"].Value.ToString();
 
                 try
                 {

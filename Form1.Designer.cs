@@ -45,6 +45,8 @@
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.button5 = new System.Windows.Forms.Button();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.Kategooria = new System.Windows.Forms.Label();
+            this.kategooriaBx = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.andmebaas2DataSet1)).BeginInit();
@@ -86,21 +88,22 @@
             // 
             this.NimetusBx.Location = new System.Drawing.Point(195, 57);
             this.NimetusBx.Name = "NimetusBx";
-            this.NimetusBx.Size = new System.Drawing.Size(116, 20);
+            this.NimetusBx.Size = new System.Drawing.Size(127, 20);
             this.NimetusBx.TabIndex = 2;
+            this.NimetusBx.Tag = "";
             // 
             // KogusBx
             // 
             this.KogusBx.Location = new System.Drawing.Point(195, 105);
             this.KogusBx.Name = "KogusBx";
-            this.KogusBx.Size = new System.Drawing.Size(116, 20);
+            this.KogusBx.Size = new System.Drawing.Size(127, 20);
             this.KogusBx.TabIndex = 3;
             // 
             // HindBx
             // 
             this.HindBx.Location = new System.Drawing.Point(195, 153);
             this.HindBx.Name = "HindBx";
-            this.HindBx.Size = new System.Drawing.Size(116, 20);
+            this.HindBx.Size = new System.Drawing.Size(127, 20);
             this.HindBx.TabIndex = 4;
             // 
             // Nimetus
@@ -158,8 +161,9 @@
             "Uuenda toode hind",
             "Uuenda toode nimetus",
             "Uuenda toode kogus",
-            "Uuenda toode pilt"});
-            this.comboBox1.Location = new System.Drawing.Point(562, 201);
+            "Uuenda toode pilt",
+            "Uuenda toode kategooria"});
+            this.comboBox1.Location = new System.Drawing.Point(702, 157);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(121, 21);
             this.comboBox1.TabIndex = 10;
@@ -181,9 +185,39 @@
             this.pictureBox1.TabIndex = 12;
             this.pictureBox1.TabStop = false;
             // 
+            // Kategooria
+            // 
+            this.Kategooria.AutoSize = true;
+            this.Kategooria.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(186)));
+            this.Kategooria.Location = new System.Drawing.Point(58, 194);
+            this.Kategooria.Name = "Kategooria";
+            this.Kategooria.Size = new System.Drawing.Size(117, 26);
+            this.Kategooria.TabIndex = 13;
+            this.Kategooria.Text = "Kategooria";
+            // 
+            // kategooriaBx
+            // 
+            this.kategooriaBx.FormattingEnabled = true;
+            this.kategooriaBx.Items.AddRange(new object[] {
+            "Lihatooted",
+            "Kalatooted",
+            "Piimatooted",
+            "Pagaritooted",
+            "Köögiviljad",
+            "Puuviljad",
+            "Marjad",
+            "Pasta"});
+            this.kategooriaBx.Location = new System.Drawing.Point(195, 200);
+            this.kategooriaBx.Name = "kategooriaBx";
+            this.kategooriaBx.Size = new System.Drawing.Size(127, 21);
+            this.kategooriaBx.TabIndex = 14;
+            this.kategooriaBx.Text = "Vali toode kategooria";
+            // 
             // Form1
             // 
             this.ClientSize = new System.Drawing.Size(844, 480);
+            this.Controls.Add(this.kategooriaBx);
+            this.Controls.Add(this.Kategooria);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.comboBox1);
@@ -240,6 +274,8 @@
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.Label Kategooria;
+        private System.Windows.Forms.ComboBox kategooriaBx;
     }
 }
 
