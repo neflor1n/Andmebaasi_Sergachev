@@ -47,6 +47,8 @@
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.Kategooria = new System.Windows.Forms.Label();
             this.kategooriaBx = new System.Windows.Forms.ComboBox();
+            this.LaduBx = new System.Windows.Forms.Label();
+            this.LaduCb = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.andmebaas2DataSet1)).BeginInit();
@@ -56,9 +58,9 @@
             // dataGridView2
             // 
             this.dataGridView2.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView2.Location = new System.Drawing.Point(63, 280);
+            this.dataGridView2.Location = new System.Drawing.Point(63, 319);
             this.dataGridView2.Name = "dataGridView2";
-            this.dataGridView2.Size = new System.Drawing.Size(712, 177);
+            this.dataGridView2.Size = new System.Drawing.Size(773, 196);
             this.dataGridView2.TabIndex = 0;
             // 
             // bindingSource1
@@ -189,7 +191,7 @@
             // 
             this.Kategooria.AutoSize = true;
             this.Kategooria.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(186)));
-            this.Kategooria.Location = new System.Drawing.Point(58, 194);
+            this.Kategooria.Location = new System.Drawing.Point(58, 195);
             this.Kategooria.Name = "Kategooria";
             this.Kategooria.Size = new System.Drawing.Size(117, 26);
             this.Kategooria.TabIndex = 13;
@@ -213,9 +215,29 @@
             this.kategooriaBx.TabIndex = 14;
             this.kategooriaBx.Text = "Vali toode kategooria";
             // 
+            // LaduBx
+            // 
+            this.LaduBx.AutoSize = true;
+            this.LaduBx.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(186)));
+            this.LaduBx.Location = new System.Drawing.Point(58, 238);
+            this.LaduBx.Name = "LaduBx";
+            this.LaduBx.Size = new System.Drawing.Size(60, 26);
+            this.LaduBx.TabIndex = 15;
+            this.LaduBx.Text = "Ladu";
+            // 
+            // LaduCb
+            // 
+            this.LaduCb.FormattingEnabled = true;
+            this.LaduCb.Location = new System.Drawing.Point(195, 243);
+            this.LaduCb.Name = "LaduCb";
+            this.LaduCb.Size = new System.Drawing.Size(127, 21);
+            this.LaduCb.TabIndex = 17;
+            // 
             // Form1
             // 
-            this.ClientSize = new System.Drawing.Size(844, 480);
+            this.ClientSize = new System.Drawing.Size(882, 527);
+            this.Controls.Add(this.LaduCb);
+            this.Controls.Add(this.LaduBx);
             this.Controls.Add(this.kategooriaBx);
             this.Controls.Add(this.Kategooria);
             this.Controls.Add(this.pictureBox1);
@@ -276,6 +298,8 @@
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label Kategooria;
         private System.Windows.Forms.ComboBox kategooriaBx;
+        private System.Windows.Forms.Label LaduBx;
+        private System.Windows.Forms.ComboBox LaduCb;
     }
 }
 

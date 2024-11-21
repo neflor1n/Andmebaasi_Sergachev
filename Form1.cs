@@ -22,19 +22,41 @@ namespace Andmebaasi_Sergachev
             Integrated Security=True");
         SqlCommand cmd;
         SqlDataAdapter adapter;
+        DataTable laoTable;
         public Form1()
         {
             InitializeComponent();
             NaitaAndmed();
+            NaitaLaod();
             this.button2.Click += new System.EventHandler(this.lisa_vtb_click);
             this.button3.Click += new System.EventHandler(this.kustuta_btn_click);
             this.button4.Click += new System.EventHandler(this.uuenda_btn_click);
             this.button5.Click += new System.EventHandler(this.otsipilt_btn_Click);
 
             this.dataGridView2.SelectionChanged += new System.EventHandler(this.dataGridView2_SelectionChanged);
+            dataGridView2.CellMouseEnter += new DataGridViewCellEventHandler(dataGridView2_CellMouseEnter);
+            dataGridView2.CellMouseLeave += new DataGridViewCellEventHandler(dataGridView2_CellMouseLeave);
+
         }
 
+        private void NaitaLaod()
+        {
+            conn.Open();
+            cmd = new SqlCommand("SELECT Id, LaoNimetus from Ladu", conn);
+            adapter = new SqlDataAdapter(cmd);
+            laoTable = new DataTable();
+            adapter.Fill(laoTable);
+            foreach(DataRow i in laoTable.Rows)
+            {
+                LaduCb.Items.Add(i["LaoNimetus"]);
 
+            }
+
+
+            conn.Close();
+
+
+        }
 
         public void NaitaAndmed()
         {
@@ -50,17 +72,36 @@ namespace Andmebaasi_Sergachev
 
         public void lisa_vtb_click(object sender, EventArgs e)
         {
-            if (NimetusBx.Text.Trim() != string.Empty && HindBx.Text.Trim() != string.Empty && KogusBx.Text.Trim() != string.Empty && kategooriaBx.Text.Trim() != string.Empty)
+            if (NimetusBx.Text.Trim() != string.Empty && HindBx.Text.Trim() != string.Empty && KogusBx.Text.Trim() != string.Empty && kategooriaBx.Text.Trim() != string.Empty && LaduCb.Text.Trim() != string.Empty)
             {
                 try
                 {
+
+
                     conn.Open();
+                    
+                    cmd = new SqlCommand("Select Id from Ladu where LaoNimetus = @ladu", conn);
+                    cmd.Parameters.AddWithValue("@ladu", LaduCb.Text);
+                    ID =  Convert.ToInt32(cmd.ExecuteScalar());
+
+                    
+
+                    byte[] imageBytes = null;
+                    if (pictureBox1.Image != null)
+                    {
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            pictureBox1.Image.Save(ms, pictureBox1.Image.RawFormat);
+                            imageBytes = ms.ToArray();
+                        }
+                    }
                     cmd = new SqlCommand("INSERT INTO Toode(Nimetus, Hind, Kogus, Kategooria, pilt) VALUES (@nimetus, @hind, @kogus, @kategooria,@pilt)", conn);
                     cmd.Parameters.AddWithValue("@nimetus", NimetusBx.Text);
                     cmd.Parameters.AddWithValue("@hind", HindBx.Text);  // Значение для поля Hind
                     cmd.Parameters.AddWithValue("@kogus", KogusBx.Text); // Значение для поля Kogus
                     cmd.Parameters.AddWithValue("@kategooria", kategooriaBx.Text);
                     cmd.Parameters.AddWithValue("@pilt", NimetusBx.Text + extension);
+                    cmd.Parameters.AddWithValue("@ladu", ID);
 
                     cmd.ExecuteNonQuery();
 
@@ -96,9 +137,9 @@ namespace Andmebaasi_Sergachev
                     MessageBox.Show("Fail ei leidnud");
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                MessageBox.Show("Failiga probleemid");
+                MessageBox.Show($"Failiga probleemid {ex.Message}");
             }
         }
 
@@ -333,54 +374,6 @@ namespace Andmebaasi_Sergachev
                     }
 
                 }
-                // Обработка "Uuenda toode kategooria"
-                else if (selectedOption == "Uuenda toode kategooria")
-                {
-                    if (dataGridView2.SelectedRows.Count > 0)
-                    {
-                        // Проверка, что категория выбрана
-                        if (kategooriaBx.SelectedIndex != -1)  
-                        {
-                            try
-                            {
-                                int selectedID = Convert.ToInt32(dataGridView2.SelectedRows[0].Cells["ID"].Value);
-                                int selectedCategoryID = Convert.ToInt32(kategooriaBx.SelectedValue); // Получаем ID выбранной категории
-
-                                // Для отладки
-                                MessageBox.Show("Selected Category ID: " + selectedCategoryID);
-
-                                if (selectedCategoryID == 0)
-                                {
-                                    MessageBox.Show("Kehtiv kategooria ei ole valitud!");
-                                    return;
-                                }
-
-                                conn.Open();
-                                cmd = new SqlCommand("UPDATE Toode SET Kategooria = @kategooria WHERE ID = @id", conn);
-                                cmd.Parameters.AddWithValue("@kategooria", selectedCategoryID);  
-                                cmd.Parameters.AddWithValue("@id", selectedID);  
-                                cmd.ExecuteNonQuery();
-                                conn.Close();
-
-                                NaitaAndmed();  
-
-                                MessageBox.Show("Kategooria edukalt uuendatud!");
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show("Viga kategooria värskendamisel: " + ex.Message);
-                            }
-                        }
-                        else
-                        {
-                            MessageBox.Show("Valige kehtiv kategooria.");
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show("Valige värskendamiseks kirje.");
-                    }
-                }
 
 
                 else
@@ -451,7 +444,7 @@ namespace Andmebaasi_Sergachev
                     }
                     else
                     {
-                        // Если картинка не найдена, выводим дефолтное изображение
+                        // Если картинка не найдена, выводим дефолтное изображение 
                         pictureBox1.Image = Image.FromFile(Path.Combine(Path.GetFullPath(@"..\..\img"), "pilt.jpg"));
                     }
                 }
@@ -462,6 +455,37 @@ namespace Andmebaasi_Sergachev
                 }
             }
         }
+
+
+        // Событие наведения мышки на ячейку (CellMouseEnter)
+        private void dataGridView2_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex == dataGridView2.Columns["pilt"].Index && e.RowIndex >= 0)
+            {
+                var imageFileName = dataGridView2.Rows[e.RowIndex].Cells["pilt"].Value?.ToString();
+
+                if (!string.IsNullOrEmpty(imageFileName))
+                {
+                    string imagePath = Path.Combine(Path.GetFullPath(@"..\..\img"), imageFileName);
+
+                    if (File.Exists(imagePath))
+                    {
+                        pictureBox1.Image = Image.FromFile(imagePath);
+                        pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+                    }
+                    
+                }
+            }
+        }
+
+        // Событие ухода мышки с ячейки (CellMouseLeave)
+        private void dataGridView2_CellMouseLeave(object sender, DataGridViewCellEventArgs e)
+        {
+            // Убираем изображение из PictureBox при уходе мышки
+            pictureBox1.Image = null;
+        }
+
+
 
 
 
