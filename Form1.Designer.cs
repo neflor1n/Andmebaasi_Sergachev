@@ -164,7 +164,8 @@
             "Uuenda toode nimetus",
             "Uuenda toode kogus",
             "Uuenda toode pilt",
-            "Uuenda toode kategooria"});
+            "Uuenda toode kategooria",
+            "Uuenda toode ladu"});
             this.comboBox1.Location = new System.Drawing.Point(702, 157);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(121, 21);
@@ -200,15 +201,6 @@
             // kategooriaBx
             // 
             this.kategooriaBx.FormattingEnabled = true;
-            this.kategooriaBx.Items.AddRange(new object[] {
-            "Lihatooted",
-            "Kalatooted",
-            "Piimatooted",
-            "Pagaritooted",
-            "Köögiviljad",
-            "Puuviljad",
-            "Marjad",
-            "Pasta"});
             this.kategooriaBx.Location = new System.Drawing.Point(195, 200);
             this.kategooriaBx.Name = "kategooriaBx";
             this.kategooriaBx.Size = new System.Drawing.Size(127, 21);
