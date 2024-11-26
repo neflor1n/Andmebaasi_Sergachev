@@ -92,6 +92,18 @@ namespace Andmebaasi_Sergachev
                 try
                 {
 
+                    if (Convert.ToDecimal(HindBx.Text) < 0)
+                    {
+                        MessageBox.Show("Hind ei saa olla negatiivne!");
+                        return;
+                    }
+
+                    if (Convert.ToInt32(KogusBx.Text) < 0)
+                    {
+                        MessageBox.Show("Kogus ei saa olla negatiivne!");
+                        return;
+                    }
+
 
                     conn.Open();
 
